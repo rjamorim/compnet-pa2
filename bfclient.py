@@ -426,14 +426,14 @@ if __name__ == '__main__':
     # Here we create a list of all nodes in the network
     nodes = defaultdict(lambda: default_node())
     for neigh, cost in zip(run_args.neighbors, run_args.costs):
-        nodes[neigh] = mknode(cost, cost, True, neigh)
+        nodes[neigh] = mknode(cost=cost, direct=cost, is_neigh=True, addr=neigh)
 
     # Initiate UDP socket
     sock = setup_server(localhost, run_args.port)
 
     # My own cost should be zero
     self = addr2str(*sock.getsockname())
-    nodes[self] = mknode(0.0, 0.0, False, self)
+    nodes[self] = mknode(cost=0.0, direct=0.0, is_neigh=False, addr=self)
 
     # Broadcast costs
     bcast_costs()

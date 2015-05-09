@@ -241,13 +241,14 @@ def parse_config(file):
 
             port = temp[0]
             if port.isdigit():
+                port = int(port)
                 if port < 0 or port > 65535:
                     print "ERROR: The port number is outside the acceptable range! (0-65535)"
                     exit(1)
             else:
                 print "ERROR: The port number must be a number"
                 exit(1)
-            config['port'] = int(port)
+            config['port'] = port
 
             timeout = temp[1]
             if isfloat(timeout):
@@ -274,6 +275,7 @@ def parse_config(file):
                     exit(1)
                 port = temp2[1]
                 if port.isdigit():
+                    port = int(port)
                     if port < 0 or port > 65535:
                         print "ERROR: The port number is outside the acceptable range! (0-65535)"
                         exit(1)

@@ -14,13 +14,21 @@ $ python bfclient.py client0.txt
     where client0.txt is the configuration file following the formatting proposed
     in the assignment notes
 
+    I created some configuration files using five machines from CLIC, and they can
+    be used to evaluate the program. The files are:
+    london.txt
+    moscow.txt
+    paris.txt
+    sofia.txt
+    warsaw.txt
+
 
 The available commands are:
-LINKDOWN: destroys a link
-LINKUP: restores a link
-CHANGECOST: changes cost for a link
-SHOWRT: show the routing table
-CLOSE: kills the node immediately, simulating a hardware failure
+linkdown: destroys a link
+linkup: restores a link
+changecost: changes cost for a link
+showrt: show the routing table
+close: kills the node immediately, simulating a hardware failure
 
 
 References:

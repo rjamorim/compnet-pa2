@@ -190,7 +190,7 @@ def linkup(host, port, **args):
 # Prints routing info (cost to dest and route taken)
 def showrt():
     print "Routing table as of " + datetime.datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
-    print " == distance vectors: == "
+    print " == Distance Vectors == "
 
     for addr, node in nodes.iteritems():
         if addr != self:  # We shouldn't print ourselves

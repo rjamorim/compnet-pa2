@@ -419,9 +419,9 @@ if __name__ == '__main__':
         print "ERROR: You must provide a configuration file: $ python bfclient.py <conffile.txt>"
         exit(1)
 
-    parsed = parse_config(conffile)
+    config = parse_config(conffile)
     argstuple = namedtuple('RunInfo', 'port timeout neighbors costs')
-    run_args = argstuple(**parsed)
+    run_args = argstuple(**config)
 
     # Here we create a list of all nodes in the network
     nodes = defaultdict(lambda: default_node())
@@ -446,28 +446,28 @@ if __name__ == '__main__':
         for s in in_ready:
             if s == sys.stdin:
                 # This is local user input
-                parsed = parse_input(sys.stdin.readline())
+                command = parse_input(sys.stdin.readline())
 
-                if 'error' in parsed:
-                    print parsed['error']
+                if 'error' in command:
+                    print command['error']
                     continue
 
-                cmd = parsed['cmd']
+                cmd = command['cmd']
                 if cmd in [LINKDOWN, LINKUP, CHANGECOST]:
-                    data = json.dumps({ 'type': cmd, 'payload': parsed['payload'] })
-                    sock.sendto(data, parsed['addr'])
+                    toremote = json.dumps({'type': cmd, 'payload': command['payload']})
+                    sock.sendto(toremote, command['addr'])
 
-                user_cmds[cmd](*parsed['addr'], **parsed['payload'])
+                user_cmds[cmd](*command['addr'], **command['payload'])
             else: 
                 # This is a message from a remote node
-                data, sender = s.recvfrom(4096)
-                loaded = json.loads(data)
-                update = loaded['type']
-                payload = loaded['payload']
+                remote, sender = s.recvfrom(4096)
+                remcmd = json.loads(remote)
+                command = remcmd['type']
+                data = remcmd['payload']
 
-                if update not in updates:
-                    print "'{0}' is not a valid update message\n".format(update)
+                if command not in updates:
+                    print "Command '{0}' not a valid update message\n".format(command)
                     continue
 
-                updates[update](*sender, **payload)
+                updates[command](*sender, **data)
     sock.close()

@@ -30,7 +30,7 @@ def get_neighbors():
     return dict([x for x in nodes.iteritems() if x[1]['neighbor']])
 
 
-# The Bellman-Ford algorithm. Calculates path costs. Core of the program.
+# The Bellman-Ford algo. Calculates path costs. Core of the program.
 # Called every time the network changes or we receive an update.
 def bellman_ford():
     for dest, destination in nodes.iteritems():
@@ -40,9 +40,9 @@ def bellman_ford():
             weight = float("inf")  # cost starts as infinite
 
             # For each neighbor calculate cheapest route
-            for neigh_addr, neighbor in get_neighbors().iteritems():
-                if dest in neighbor['costs']:
-                    dist = neighbor['direct'] + neighbor['costs'][dest]
+            for neigh_addr, neigh in get_neighbors().iteritems():
+                if dest in neigh['costs']:
+                    dist = neigh['direct'] + neigh['costs'][dest]
                     if dist < weight:
                         nexthop = neigh_addr
                         weight = dist
@@ -96,8 +96,8 @@ def mknode(cost, is_neigh, direct=None, costs=None, addr=None):
 
     if is_neigh:
         newnode['route'] = addr
-        # Check if neighbor is transmitting cost updates using the resettable timer
-        monitor = ResettableTimer(interval=3*run_args.timeout, func=linkdown, args=list(str2addr(addr)))
+        # Check if neighbor is transmitting updates using the resettable timer
+        monitor = MonitorTimer(interval=3*run_args.timeout, func=linkdown, args=list(str2addr(addr)))
         monitor.start()  # starts monitoring
         newnode['silence_monitor'] = monitor
 
@@ -115,7 +115,6 @@ def get_node(host, port):
     node = nodes[addr]
     return node, addr, err
 
-
 # Commands and updates
 LINKDOWN = "linkdown"
 LINKUP = "linkup"
@@ -127,7 +126,7 @@ SHOWNEIGHBORS = "neighbors"
 
 
 # Changes link parameters
-def linkchange(host, port, **kwargs):
+def linkchange(host, port, **args):
     node, addr, err = get_node(host, port)
     if err:
         return
@@ -137,7 +136,7 @@ def linkchange(host, port, **kwargs):
         print "There is no direct link to node {0}. Parameters can't be changed\n".format(addr)
         return
 
-    direct = kwargs['direct']
+    direct = args['direct']
     if direct < 1:
         print "The link cost can not be smaller than 1"
         return
@@ -152,7 +151,7 @@ def linkchange(host, port, **kwargs):
 
 
 # Deactivates a link
-def linkdown(host, port, **kwargs):
+def linkdown(host, port, **args):
     node, addr, err = get_node(host, port)
     if err:
         return
@@ -171,7 +170,7 @@ def linkdown(host, port, **kwargs):
 
 
 # Re-activates a link
-def linkup(host, port, **kwargs):
+def linkup(host, port, **args):
     node, addr, err = get_node(host, port)
     if err:
         return
@@ -215,7 +214,7 @@ def close():
     sys.exit()
 
 
-# Figures out of a node is part of the network or not
+# Figures out if a node is part of the network or not
 def in_network(addr):
     if addr not in nodes:
         print 'Node {0} is not part of the network\n'.format(addr)
@@ -340,8 +339,8 @@ def parse_input(user_input):
 
 
 # Update costs for a neighbor
-def costs_upd(host, port, **kwargs):
-    costs = kwargs['costs']
+def costs_upd(host, port, **args):
+    costs = args['costs']
     addr = addr2str(host, port)
 
     for node in costs:
@@ -353,7 +352,7 @@ def costs_upd(host, port, **kwargs):
     if not nodes[addr]['neighbor']:
         print 'New neighbor: {0}\n'.format(addr)
         del nodes[addr]
-        nodes[addr] = mknode(cost=nodes[addr]['cost'], is_neigh=True, direct=kwargs['neighbor']['direct'],
+        nodes[addr] = mknode(cost=nodes[addr]['cost'], is_neigh=True, direct=args['neighbor']['direct'],
                 costs=costs, addr=addr)
     else:
         # otherwise just update node costs
@@ -365,14 +364,12 @@ def costs_upd(host, port, **kwargs):
     # Updates Bellman-Ford costs
     bellman_ford()
 
-
 updates = {
     LINKDOWN: linkdown,
     LINKUP: linkup,
     LINKCHANGE: linkchange,
     COSTSUPDATE: costs_upd,
 }
-
 user_cmds = {
     LINKDOWN: linkdown,
     LINKUP: linkup,
@@ -382,13 +379,14 @@ user_cmds = {
     SHOWNEIGHBORS: show_neighbors,
 }
 
+
 # Creates thread that calls a function in intervals
-class RepeatTimer(Thread):
+class Repeater(Thread):
     def __init__(self, interval, target):
         Thread.__init__(self)
         self.target = target
-        self.interval = interval
         self.daemon = True
+        self.interval = interval
         self.stopped = False
     def run(self):
         while not self.stopped:
@@ -397,12 +395,12 @@ class RepeatTimer(Thread):
 
 
 # Creates a resettable timer thread
-class ResettableTimer():
+class MonitorTimer():
     def __init__(self, interval, func, args=None):
         if args != None: assert type(args) is list
         self.interval = interval
-        self.func = func
         self.args = args
+        self.func = func
         self.countdown = self.create_timer()
     def start(self):
         self.countdown.start()
@@ -445,7 +443,7 @@ if __name__ == '__main__':
 
     # Broadcast costs
     bcast_costs()
-    RepeatTimer(run_args.timeout, bcast_costs).start()
+    Repeater(run_args.timeout, bcast_costs).start()
 
     inputs = [sock, sys.stdin]
     # The loop that reads updates

@@ -343,7 +343,8 @@ def costs_upd(host, port, **args):
     if not nodes[addr]['neighbor']:
         print 'New neighbor: {0}\n'.format(addr)
         del nodes[addr]
-        nodes[addr] = mknode(nodes[addr]['cost'], True, args['neighbor']['direct'], costs, addr)
+        nodes[addr] = mknode(cost=nodes[addr]['cost'], is_neigh=True, direct=args['neighbor']['direct'],
+                costs=costs, addr=addr)
     else:
         # otherwise just update node costs
         node = nodes[addr]

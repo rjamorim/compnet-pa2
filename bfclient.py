@@ -419,6 +419,9 @@ class MonitorTimer():
 if __name__ == '__main__':
     localhost = socket.gethostbyname(socket.gethostname())
     conffile = ""
+    if not sys.argv[1]:
+        print "ERROR: You must provide a configuration file: $ python bfclient.py <conffile.txt>"
+        exit(1)
     if not os.path.isfile(sys.argv[1]):
         print "ERROR: Invalid file name for configuration file"
         exit(1)

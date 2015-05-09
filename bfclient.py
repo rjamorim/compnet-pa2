@@ -118,15 +118,14 @@ def get_node(host, port):
 # Commands and updates
 LINKDOWN = "linkdown"
 LINKUP = "linkup"
-LINKCHANGE = "linkchange"
+CHANGECOST = "changecost"
 SHOWRT = "showrt"
 CLOSE = "close"
 COSTSUPDATE = "costsupdate"
-SHOWNEIGHBORS = "neighbors"
 
 
 # Changes link parameters
-def linkchange(host, port, **args):
+def changecost(host, port, **args):
     node, addr, err = get_node(host, port)
     if err:
         return
@@ -186,16 +185,6 @@ def linkup(host, port, **args):
     node['neighbor'] = True  # The node is our neighbor again!
     # Updates Bellman-Ford costs
     bellman_ford()
-
-
-# Prints the router's naighbors
-def show_neighbors():
-    print datetime.datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
-    print "Router neighbors: "
-
-    for addr, neigh in get_neighbors().iteritems():
-        print "{addr}, cost: {cost}, direct: {direct}".format(addr=addr, cost=neigh['cost'], direct=neigh['direct'])
-    print ""
 
 
 # Prints routing info (cost to dest and route taken)
@@ -315,12 +304,12 @@ def parse_input(user_input):
         return { 'error': "'{0}' is not a valid command\n".format(cmd) }
 
     # Check if commands have arguments
-    if cmd in [LINKDOWN, LINKUP, LINKCHANGE]:
+    if cmd in [LINKDOWN, LINKUP, CHANGECOST]:
         args = user_input[1:]
         # validate args
         if cmd in [LINKDOWN, LINKUP] and len(args) != 2:
             return {'error': "'{0}' command requires host and port\n".format(cmd)}
-        elif cmd == LINKCHANGE and len(args) != 3:
+        elif cmd == CHANGECOST and len(args) != 3:
             return {'error': "'{0}' command requires host, port and cost\n".format(cmd)}
 
         port = args[1]
@@ -330,7 +319,7 @@ def parse_input(user_input):
             return {'error': "The port number must be a number\n"}
         command['addr'] = (get_host(args[0]), int(port))
 
-        if cmd == LINKCHANGE:
+        if cmd == CHANGECOST:
             cost = args[2]
             if not isfloat(cost):
                 return {'error': "New weight must be a number\n"}
@@ -369,16 +358,15 @@ def costs_upd(host, port, **args):
 updates = {
     LINKDOWN: linkdown,
     LINKUP: linkup,
-    LINKCHANGE: linkchange,
+    CHANGECOST: changecost,
     COSTSUPDATE: costs_upd,
 }
 user_cmds = {
     LINKDOWN: linkdown,
     LINKUP: linkup,
-    LINKCHANGE: linkchange,
+    CHANGECOST: changecost,
     SHOWRT: showrt,
     CLOSE: close,
-    SHOWNEIGHBORS: show_neighbors,
 }
 
 
@@ -465,7 +453,7 @@ if __name__ == '__main__':
                     continue
 
                 cmd = parsed['cmd']
-                if cmd in [LINKDOWN, LINKUP, LINKCHANGE]:
+                if cmd in [LINKDOWN, LINKUP, CHANGECOST]:
                     data = json.dumps({ 'type': cmd, 'payload': parsed['payload'] })
                     sock.sendto(data, parsed['addr'])
 

@@ -16,12 +16,11 @@ $ python bfclient.py client0.txt
 
 
 The available commands are:
-LINKDOWN: deactivates a link
-LINKUP: reactivates a link
-LINKCHANGE: changes cost for a link
+LINKDOWN: destroys a link
+LINKUP: restores a link
+CHANGECOST: changes cost for a link
 SHOWRT: show the routing table
 CLOSE: kills the node immediately, simulating a hardware failure
-SHOWNEIGHBORS: shows the current node's neighbors
 
 
 References:

@@ -189,8 +189,8 @@ def linkup(host, port, **args):
 
 # Prints routing info (cost to dest and route taken)
 def showrt():
-    print datetime.datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
-    print "Router's distance vectors:"
+    print "Routing table as of " + datetime.datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
+    print " == distance vectors: == "
 
     for addr, node in nodes.iteritems():
         if addr != self:  # We shouldn't print ourselves
@@ -343,8 +343,7 @@ def costs_upd(host, port, **args):
     if not nodes[addr]['neighbor']:
         print 'New neighbor: {0}\n'.format(addr)
         del nodes[addr]
-        nodes[addr] = mknode(cost=nodes[addr]['cost'], is_neigh=True, direct=args['neighbor']['direct'],
-                costs=costs, addr=addr)
+        nodes[addr] = mknode(nodes[addr]['cost'], True, args['neighbor']['direct'], costs, addr)
     else:
         # otherwise just update node costs
         node = nodes[addr]
@@ -420,20 +419,20 @@ if __name__ == '__main__':
         exit(1)
 
     parsed = parse_config(conffile)
-    RunArgs = namedtuple('RunInfo', 'port timeout neighbors costs')
-    run_args = RunArgs(**parsed)
+    argstuple = namedtuple('RunInfo', 'port timeout neighbors costs')
+    run_args = argstuple(**parsed)
 
     # Here we create a list of all nodes in the network
     nodes = defaultdict(lambda: default_node())
-    for neighbor, cost in zip(run_args.neighbors, run_args.costs):
-        nodes[neighbor] = mknode(cost=cost, direct=cost, is_neigh=True, addr=neighbor)
+    for neigh, cost in zip(run_args.neighbors, run_args.costs):
+        nodes[neigh] = mknode(cost, cost, True, neigh)
 
     # Initiate UDP socket
     sock = setup_server(localhost, run_args.port)
 
     # My own cost should be zero
     self = addr2str(*sock.getsockname())
-    nodes[self] = mknode(cost=0.0, direct=0.0, is_neigh=False, addr=self)
+    nodes[self] = mknode(0.0, 0.0, False, self)
 
     # Broadcast costs
     bcast_costs()

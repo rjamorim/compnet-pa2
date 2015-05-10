@@ -2,8 +2,8 @@
 # Programming assignment 2
 # Roberto Amorim - rja2139
 
-import sys, socket, json, time, os
-import select, datetime
+import json, time, os, select
+import datetime, sys, socket
 from threading import Timer, Thread
 from copy import deepcopy
 from collections import defaultdict, namedtuple
@@ -306,7 +306,7 @@ def parse_input(user_input):
     # Check if commands have arguments
     if cmd in [LINKDOWN, LINKUP, CHANGECOST]:
         args = user_input[1:]
-        # validate args
+        # Validate aruments
         if cmd in [LINKDOWN, LINKUP] and len(args) != 2:
             return {'error': "'{0}' command requires host and port\n".format(cmd)}
         elif cmd == CHANGECOST and len(args) != 3:

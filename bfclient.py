@@ -212,11 +212,11 @@ def in_network(addr):
 
 
 # Just checks if a number is floating point (since .isdigit() doesn't work in this case)
-def isfloat(n):
+def isfloat(val):
     try:
-        float(n)
+        float(val)
         return True
-    except ValueError:
+    except:
         return False
 
 
@@ -314,10 +314,11 @@ def parse_input(user_input):
 
         port = args[1]
         if not port.isdigit():
+            port = int(port)
             if port < 0 or port > 65535:
                 return {'error': "The port number is outside the acceptable range! (0-65535)\n"}
             return {'error': "The port number must be a number\n"}
-        command['addr'] = (get_host(args[0]), int(port))
+        command['addr'] = (get_host(args[0]), port)
 
         if cmd == CHANGECOST:
             cost = args[2]

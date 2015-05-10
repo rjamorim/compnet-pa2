@@ -5,7 +5,8 @@ Roberto Amorim - rja2139
 This program simulates network-layer routing uwing the Bellman Ford algorithm,
 implementing poison reverse.
 
-Updates are sent to neighboring nodes using JSON formatted messages.
+Cost updates and commands are sent to neighboring nodes using JSON formatted
+messages.
 
 
 Running the program:
@@ -35,3 +36,5 @@ References:
 http://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
 http://www.markhneedham.com/blog/2013/01/18/bellman-ford-algorithm-in-python/
 https://gist.github.com/joninvski/701720
+http://pymotw.com/2/json/
+https://docs.python.org/2/howto/sockets.html

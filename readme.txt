@@ -2,6 +2,11 @@ Computer Networks Spring 2015
 Programming assignment 2
 Roberto Amorim - rja2139
 
+** Delivering with three days delay - hopefully that is OK, I have not used late
+   days before
+** Did not have time to implement file transfer, finals and other projects got in
+   the way. Sorry about that!
+
 This program simulates network-layer routing uwing the Bellman Ford algorithm,
 implementing poison reverse.
 
